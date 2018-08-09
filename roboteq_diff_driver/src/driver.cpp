@@ -271,8 +271,8 @@ ROS_DEBUG_STREAM("cmdvel power right: " << right_power << " left: " << left_powe
   else
   {
     // motor speed (rpm)
-    int32_t right_rpm = right_speed / wheel_circumference * 60.0;
-    int32_t left_rpm = left_speed / wheel_circumference * 60.0;
+    int32_t right_rpm = right_speed / wheel_circumference * 100.0;
+    int32_t left_rpm = left_speed / wheel_circumference * 100.0;
 #ifdef _CMDVEL_DEBUG
 ROS_DEBUG_STREAM("cmdvel rpm right: " << right_rpm << " left: " << left_rpm);
 #endif
@@ -510,7 +510,7 @@ void MainNode::odom_stream()
 //  controller.write("# C_?CR_?BA_# 17\r");
   // start encoder, current and voltage output (30 hz)
   // tripling frequency since one value is output at each cycle
-  controller.write("# C_?CR_?BA_?V_# 11\r");
+  controller.write("# C_?BCR_?BA_?V_# 11\r");
 #else
 //  // start encoder output (10 hz)
 //  controller.write("# C_?CR_# 100\r");
@@ -548,10 +548,10 @@ void MainNode::odom_loop()
 //ROS_DEBUG_STREAM( "line: " << odom_buf );
 #endif
       // CR= is encoder counts
-      if ( odom_buf[0] == 'C' && odom_buf[1] == 'R' && odom_buf[2] == '=' )
+      if ( odom_buf[0] == 'B' && odom_buf[1] == 'C' && odom_buf[2] == 'R' && odom_buf[3] == '=' )
       {
         int delim;
-        for ( delim = 3; delim < odom_idx; delim++ )
+        for ( delim = 4; delim < odom_idx; delim++ )
         {
           if ( odom_encoder_toss > 0 )
           {
@@ -561,7 +561,7 @@ void MainNode::odom_loop()
           if (odom_buf[delim] == ':')
           {
             odom_buf[delim] = 0;
-            odom_encoder_right = (int32_t)strtol(odom_buf+3, NULL, 10);
+            odom_encoder_right = (int32_t)strtol(odom_buf+4, NULL, 10);
             odom_encoder_left = (int32_t)strtol(odom_buf+delim+1, NULL, 10);
 #ifdef _ODOM_DEBUG
 ROS_DEBUG_STREAM("encoder right: " << odom_encoder_right << " left: " << odom_encoder_left);
